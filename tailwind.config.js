@@ -1,9 +1,6 @@
 /** @type {import('tailwindcss').Config} */
 export default {
-  content: [
-    "./index.html",
-    "./src/**/*.{js,ts,jsx,tsx}",
-  ],
+  content: ['./index.html', './src/**/*.{js,ts,jsx,tsx}'],
   theme: {
     extend: {
       colors: {
@@ -20,9 +17,9 @@ export default {
           muted: '#6b6b76',
         },
         accent: {
-          DEFAULT: '#ff6b2c',
-          hover: '#ff8552',
-          muted: '#ff6b2c20',
+          DEFAULT: 'var(--color-accent, #64748b)',
+          hover: 'var(--color-accent-hover, #94a3b8)',
+          muted: 'var(--color-accent-muted, #64748b20)',
         },
         border: {
           DEFAULT: '#2a2a32',
@@ -33,7 +30,7 @@ export default {
           warning: '#ffb86c',
           error: '#ff5555',
           info: '#8be9fd',
-        }
+        },
       },
       fontFamily: {
         sans: ['Inter', 'system-ui', 'sans-serif'],
@@ -64,4 +61,4 @@ export default {
     },
   },
   plugins: [],
-}
+};

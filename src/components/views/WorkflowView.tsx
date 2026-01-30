@@ -1,4 +1,4 @@
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   Workflow,
@@ -38,11 +38,19 @@ export function WorkflowView({ workflowId }: WorkflowViewProps) {
     deleteWorkflow,
     deleteAgent,
     addTimelineEntry,
+    setActiveAccentColor,
   } = useAppStore();
 
   const workflow = getWorkflow(workflowId);
   const chatbot = workflow ? getChatbot(workflow.chatbotId) : undefined;
   const org = chatbot ? getOrganization(chatbot.orgId) : undefined;
+
+  // Set accent color from parent chatbot
+  useEffect(() => {
+    if (chatbot?.accentColor) {
+      setActiveAccentColor(chatbot.accentColor);
+    }
+  }, [chatbot?.accentColor, setActiveAccentColor]);
 
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -52,7 +60,9 @@ export function WorkflowView({ workflowId }: WorkflowViewProps) {
   const [deleteAgentId, setDeleteAgentId] = useState<string | null>(null);
   const [expandedAgents, setExpandedAgents] = useState<Set<string>>(new Set());
   const [showAddLog, setShowAddLog] = useState(false);
-  const [viewJsonEntry, setViewJsonEntry] = useState<TimelineEntry | null>(null);
+  const [viewJsonEntry, setViewJsonEntry] = useState<TimelineEntry | null>(
+    null,
+  );
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   if (!workflow || !chatbot || !org) {
@@ -146,11 +156,7 @@ export function WorkflowView({ workflowId }: WorkflowViewProps) {
       <div className="flex items-start justify-between mb-8">
         <div className="flex items-center gap-4">
           <div className="w-14 h-14 bg-accent-muted rounded-xl flex items-center justify-center">
-            {workflow.emoji ? (
-              <span className="text-2xl">{workflow.emoji}</span>
-            ) : (
-              <Workflow className="w-7 h-7 text-accent" />
-            )}
+            <span className="text-2xl">{workflow.emoji || '⚙️'}</span>
           </div>
           <div>
             <h1 className="text-2xl font-semibold text-text-primary">
@@ -448,7 +454,10 @@ export function WorkflowView({ workflowId }: WorkflowViewProps) {
 
       {/* Modals */}
       {showEdit && (
-        <EditWorkflowModal workflow={workflow} onClose={() => setShowEdit(false)} />
+        <EditWorkflowModal
+          workflow={workflow}
+          onClose={() => setShowEdit(false)}
+        />
       )}
       {showDelete && (
         <ConfirmModal

@@ -28,7 +28,9 @@ export function Sidebar() {
 
   const [showAddOrg, setShowAddOrg] = useState(false);
   const [addChatbotToOrg, setAddChatbotToOrg] = useState<string | null>(null);
-  const [addWorkflowToChatbot, setAddWorkflowToChatbot] = useState<string | null>(null);
+  const [addWorkflowToChatbot, setAddWorkflowToChatbot] = useState<
+    string | null
+  >(null);
 
   return (
     <>
@@ -39,7 +41,9 @@ export function Sidebar() {
             <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center">
               <Bot className="w-5 h-5 text-bg-primary" />
             </div>
-            <span className="font-semibold text-lg text-text-primary">BotDocs</span>
+            <span className="font-semibold text-lg text-text-primary">
+              botdocs
+            </span>
           </div>
         </div>
 
@@ -76,7 +80,8 @@ export function Sidebar() {
             <div className="mt-1 space-y-0.5">
               {organizations.map((org) => {
                 const isExpanded = expandedOrgs.has(org.id);
-                const isActive = navigation.orgId === org.id && navigation.view === 'org';
+                const isActive =
+                  navigation.orgId === org.id && navigation.view === 'org';
                 const chatbots = getChatbotsByOrg(org.id);
 
                 return (
@@ -122,9 +127,12 @@ export function Sidebar() {
                     {isExpanded && (
                       <div className="ml-4 mt-0.5 space-y-0.5 animate-fade-in">
                         {chatbots.map((chatbot) => {
-                          const isChatbotExpanded = expandedChatbots.has(chatbot.id);
+                          const isChatbotExpanded = expandedChatbots.has(
+                            chatbot.id,
+                          );
                           const isChatbotActive =
-                            navigation.chatbotId === chatbot.id && navigation.view === 'chatbot';
+                            navigation.chatbotId === chatbot.id &&
+                            navigation.view === 'chatbot';
                           const workflows = getWorkflowsByChatbot(chatbot.id);
 
                           return (
@@ -138,7 +146,9 @@ export function Sidebar() {
                                 }`}
                               >
                                 <button
-                                  onClick={() => toggleChatbotExpanded(chatbot.id)}
+                                  onClick={() =>
+                                    toggleChatbotExpanded(chatbot.id)
+                                  }
                                   className="p-0.5 rounded hover:bg-bg-elevated"
                                 >
                                   {isChatbotExpanded ? (
@@ -199,7 +209,8 @@ export function Sidebar() {
                                       >
                                         <Workflow className="w-3.5 h-3.5 flex-shrink-0" />
                                         <span className="text-sm truncate">
-                                          {workflow.emoji && `${workflow.emoji} `}
+                                          {workflow.emoji &&
+                                            `${workflow.emoji} `}
                                           {workflow.name}
                                         </span>
                                       </div>

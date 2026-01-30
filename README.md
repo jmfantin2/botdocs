@@ -1,4 +1,4 @@
-# BotDocs
+# botdocs
 
 A local-first documentation portal for managing WhatsApp chatbots, n8n workflows, and AI agents.
 

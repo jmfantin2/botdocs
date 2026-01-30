@@ -29,6 +29,7 @@ export interface Chatbot {
   credentials: Credential[];
   links: Link[];
   testerData: string; // markdown
+  accentColor?: string; // hex color, e.g., "#ff6b2c"
   createdAt: string;
   updatedAt: string;
 }

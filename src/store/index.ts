@@ -16,55 +16,81 @@ interface AppStore {
   organizations: Organization[];
   chatbots: Chatbot[];
   workflows: Workflow[];
-  
+
   // UI State
   navigation: NavigationState;
   searchQuery: string;
   expandedOrgs: Set<string>;
   expandedChatbots: Set<string>;
-  
+  activeAccentColor: string | null; // Currently active accent color
+
   // Navigation actions
   navigate: (nav: NavigationState) => void;
   setSearchQuery: (query: string) => void;
   toggleOrgExpanded: (orgId: string) => void;
   toggleChatbotExpanded: (chatbotId: string) => void;
-  
+  setActiveAccentColor: (color: string | null) => void;
+
   // Organization actions
   addOrganization: (name: string, description: string) => Organization;
   updateOrganization: (id: string, updates: Partial<Organization>) => void;
   deleteOrganization: (id: string) => void;
-  
+
   // Chatbot actions
   addChatbot: (orgId: string, name: string, description: string) => Chatbot;
   updateChatbot: (id: string, updates: Partial<Chatbot>) => void;
   deleteChatbot: (id: string) => void;
-  addCredential: (chatbotId: string, credential: Omit<Credential, 'id'>) => void;
-  updateCredential: (chatbotId: string, credentialId: string, updates: Partial<Credential>) => void;
+  addCredential: (
+    chatbotId: string,
+    credential: Omit<Credential, 'id'>,
+  ) => void;
+  updateCredential: (
+    chatbotId: string,
+    credentialId: string,
+    updates: Partial<Credential>,
+  ) => void;
   deleteCredential: (chatbotId: string, credentialId: string) => void;
   addLink: (chatbotId: string, link: Omit<Link, 'id'>) => void;
-  updateLink: (chatbotId: string, linkId: string, updates: Partial<Link>) => void;
+  updateLink: (
+    chatbotId: string,
+    linkId: string,
+    updates: Partial<Link>,
+  ) => void;
   deleteLink: (chatbotId: string, linkId: string) => void;
-  
+
   // Workflow actions
-  addWorkflow: (chatbotId: string, name: string, description: string, url: string, emoji?: string) => Workflow;
+  addWorkflow: (
+    chatbotId: string,
+    name: string,
+    description: string,
+    url: string,
+    emoji?: string,
+  ) => Workflow;
   updateWorkflow: (id: string, updates: Partial<Workflow>) => void;
   deleteWorkflow: (id: string) => void;
   addAgent: (workflowId: string, agent: Omit<Agent, 'id'>) => void;
-  updateAgent: (workflowId: string, agentId: string, updates: Partial<Agent>) => void;
+  updateAgent: (
+    workflowId: string,
+    agentId: string,
+    updates: Partial<Agent>,
+  ) => void;
   deleteAgent: (workflowId: string, agentId: string) => void;
-  addTimelineEntry: (workflowId: string, entry: Omit<TimelineEntry, 'id' | 'timestamp'>) => void;
-  
+  addTimelineEntry: (
+    workflowId: string,
+    entry: Omit<TimelineEntry, 'id' | 'timestamp'>,
+  ) => void;
+
   // Data persistence
   loadData: () => void;
   saveData: () => void;
-  
+
   // Getters
   getOrganization: (id: string) => Organization | undefined;
   getChatbot: (id: string) => Chatbot | undefined;
   getWorkflow: (id: string) => Workflow | undefined;
   getChatbotsByOrg: (orgId: string) => Chatbot[];
   getWorkflowsByChatbot: (chatbotId: string) => Workflow[];
-  
+
   // Search
   searchAll: (query: string) => {
     organizations: Organization[];
@@ -72,8 +98,6 @@ interface AppStore {
     workflows: Workflow[];
   };
 }
-
-const DATA_PATH = './data';
 
 // Helper to get current timestamp
 const now = () => new Date().toISOString();
@@ -87,29 +111,33 @@ export const useAppStore = create<AppStore>((set, get) => ({
   searchQuery: '',
   expandedOrgs: new Set<string>(),
   expandedChatbots: new Set<string>(),
-  
+  activeAccentColor: null,
+
   // Navigation
   navigate: (nav) => set({ navigation: nav }),
   setSearchQuery: (query) => set({ searchQuery: query }),
-  toggleOrgExpanded: (orgId) => set((state) => {
-    const newSet = new Set(state.expandedOrgs);
-    if (newSet.has(orgId)) {
-      newSet.delete(orgId);
-    } else {
-      newSet.add(orgId);
-    }
-    return { expandedOrgs: newSet };
-  }),
-  toggleChatbotExpanded: (chatbotId) => set((state) => {
-    const newSet = new Set(state.expandedChatbots);
-    if (newSet.has(chatbotId)) {
-      newSet.delete(chatbotId);
-    } else {
-      newSet.add(chatbotId);
-    }
-    return { expandedChatbots: newSet };
-  }),
-  
+  toggleOrgExpanded: (orgId) =>
+    set((state) => {
+      const newSet = new Set(state.expandedOrgs);
+      if (newSet.has(orgId)) {
+        newSet.delete(orgId);
+      } else {
+        newSet.add(orgId);
+      }
+      return { expandedOrgs: newSet };
+    }),
+  toggleChatbotExpanded: (chatbotId) =>
+    set((state) => {
+      const newSet = new Set(state.expandedChatbots);
+      if (newSet.has(chatbotId)) {
+        newSet.delete(chatbotId);
+      } else {
+        newSet.add(chatbotId);
+      }
+      return { expandedChatbots: newSet };
+    }),
+  setActiveAccentColor: (color) => set({ activeAccentColor: color }),
+
   // Organization CRUD
   addOrganization: (name, description) => {
     const org: Organization = {
@@ -126,21 +154,25 @@ export const useAppStore = create<AppStore>((set, get) => ({
   updateOrganization: (id, updates) => {
     set((state) => ({
       organizations: state.organizations.map((org) =>
-        org.id === id ? { ...org, ...updates, updatedAt: now() } : org
+        org.id === id ? { ...org, ...updates, updatedAt: now() } : org,
       ),
     }));
     get().saveData();
   },
   deleteOrganization: (id) => {
-    const chatbotIds = get().chatbots.filter(c => c.orgId === id).map(c => c.id);
+    const chatbotIds = get()
+      .chatbots.filter((c) => c.orgId === id)
+      .map((c) => c.id);
     set((state) => ({
       organizations: state.organizations.filter((org) => org.id !== id),
       chatbots: state.chatbots.filter((c) => c.orgId !== id),
-      workflows: state.workflows.filter((w) => !chatbotIds.includes(w.chatbotId)),
+      workflows: state.workflows.filter(
+        (w) => !chatbotIds.includes(w.chatbotId),
+      ),
     }));
     get().saveData();
   },
-  
+
   // Chatbot CRUD
   addChatbot: (orgId, name, description) => {
     const chatbot: Chatbot = {
@@ -161,7 +193,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   updateChatbot: (id, updates) => {
     set((state) => ({
       chatbots: state.chatbots.map((c) =>
-        c.id === id ? { ...c, ...updates, updatedAt: now() } : c
+        c.id === id ? { ...c, ...updates, updatedAt: now() } : c,
       ),
     }));
     get().saveData();
@@ -179,7 +211,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       chatbots: state.chatbots.map((c) =>
         c.id === chatbotId
           ? { ...c, credentials: [...c.credentials, newCred], updatedAt: now() }
-          : c
+          : c,
       ),
     }));
     get().saveData();
@@ -191,11 +223,11 @@ export const useAppStore = create<AppStore>((set, get) => ({
           ? {
               ...c,
               credentials: c.credentials.map((cred) =>
-                cred.id === credentialId ? { ...cred, ...updates } : cred
+                cred.id === credentialId ? { ...cred, ...updates } : cred,
               ),
               updatedAt: now(),
             }
-          : c
+          : c,
       ),
     }));
     get().saveData();
@@ -206,10 +238,12 @@ export const useAppStore = create<AppStore>((set, get) => ({
         c.id === chatbotId
           ? {
               ...c,
-              credentials: c.credentials.filter((cred) => cred.id !== credentialId),
+              credentials: c.credentials.filter(
+                (cred) => cred.id !== credentialId,
+              ),
               updatedAt: now(),
             }
-          : c
+          : c,
       ),
     }));
     get().saveData();
@@ -220,7 +254,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       chatbots: state.chatbots.map((c) =>
         c.id === chatbotId
           ? { ...c, links: [...c.links, newLink], updatedAt: now() }
-          : c
+          : c,
       ),
     }));
     get().saveData();
@@ -232,11 +266,11 @@ export const useAppStore = create<AppStore>((set, get) => ({
           ? {
               ...c,
               links: c.links.map((link) =>
-                link.id === linkId ? { ...link, ...updates } : link
+                link.id === linkId ? { ...link, ...updates } : link,
               ),
               updatedAt: now(),
             }
-          : c
+          : c,
       ),
     }));
     get().saveData();
@@ -250,12 +284,12 @@ export const useAppStore = create<AppStore>((set, get) => ({
               links: c.links.filter((link) => link.id !== linkId),
               updatedAt: now(),
             }
-          : c
+          : c,
       ),
     }));
     get().saveData();
   },
-  
+
   // Workflow CRUD
   addWorkflow: (chatbotId, name, description, url, emoji) => {
     const workflow: Workflow = {
@@ -277,7 +311,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
   updateWorkflow: (id, updates) => {
     set((state) => ({
       workflows: state.workflows.map((w) =>
-        w.id === id ? { ...w, ...updates, updatedAt: now() } : w
+        w.id === id ? { ...w, ...updates, updatedAt: now() } : w,
       ),
     }));
     get().saveData();
@@ -294,7 +328,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
       workflows: state.workflows.map((w) =>
         w.id === workflowId
           ? { ...w, agents: [...w.agents, newAgent], updatedAt: now() }
-          : w
+          : w,
       ),
     }));
     get().saveData();
@@ -306,11 +340,11 @@ export const useAppStore = create<AppStore>((set, get) => ({
           ? {
               ...w,
               agents: w.agents.map((a) =>
-                a.id === agentId ? { ...a, ...updates } : a
+                a.id === agentId ? { ...a, ...updates } : a,
               ),
               updatedAt: now(),
             }
-          : w
+          : w,
       ),
     }));
     get().saveData();
@@ -324,7 +358,7 @@ export const useAppStore = create<AppStore>((set, get) => ({
               agents: w.agents.filter((a) => a.id !== agentId),
               updatedAt: now(),
             }
-          : w
+          : w,
       ),
     }));
     get().saveData();
@@ -339,12 +373,12 @@ export const useAppStore = create<AppStore>((set, get) => ({
       workflows: state.workflows.map((w) =>
         w.id === workflowId
           ? { ...w, timeline: [newEntry, ...w.timeline], updatedAt: now() }
-          : w
+          : w,
       ),
     }));
     get().saveData();
   },
-  
+
   // Persistence (will be implemented with Tauri fs API)
   loadData: () => {
     // For now, load from localStorage as fallback
@@ -366,33 +400,37 @@ export const useAppStore = create<AppStore>((set, get) => ({
     // For now, save to localStorage as fallback
     try {
       const { organizations, chatbots, workflows } = get();
-      localStorage.setItem('botdocs_data', JSON.stringify({
-        organizations,
-        chatbots,
-        workflows,
-      }));
+      localStorage.setItem(
+        'botdocs_data',
+        JSON.stringify({
+          organizations,
+          chatbots,
+          workflows,
+        }),
+      );
     } catch (e) {
       console.error('Failed to save data:', e);
     }
   },
-  
+
   // Getters
   getOrganization: (id) => get().organizations.find((o) => o.id === id),
   getChatbot: (id) => get().chatbots.find((c) => c.id === id),
   getWorkflow: (id) => get().workflows.find((w) => w.id === id),
   getChatbotsByOrg: (orgId) => get().chatbots.filter((c) => c.orgId === orgId),
-  getWorkflowsByChatbot: (chatbotId) => get().workflows.filter((w) => w.chatbotId === chatbotId),
-  
+  getWorkflowsByChatbot: (chatbotId) =>
+    get().workflows.filter((w) => w.chatbotId === chatbotId),
+
   // Search
   searchAll: (query) => {
     const q = query.toLowerCase();
     const { organizations, chatbots, workflows } = get();
-    
+
     return {
       organizations: organizations.filter(
         (o) =>
           o.name.toLowerCase().includes(q) ||
-          o.description.toLowerCase().includes(q)
+          o.description.toLowerCase().includes(q),
       ),
       chatbots: chatbots.filter(
         (c) =>
@@ -402,8 +440,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
           c.credentials.some(
             (cred) =>
               cred.label.toLowerCase().includes(q) ||
-              cred.service.toLowerCase().includes(q)
-          )
+              cred.service.toLowerCase().includes(q),
+          ),
       ),
       workflows: workflows.filter(
         (w) =>
@@ -412,8 +450,8 @@ export const useAppStore = create<AppStore>((set, get) => ({
           w.agents.some(
             (a) =>
               a.name.toLowerCase().includes(q) ||
-              a.role.toLowerCase().includes(q)
-          )
+              a.role.toLowerCase().includes(q),
+          ),
       ),
     };
   },

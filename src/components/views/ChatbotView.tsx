@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
   Bot,
@@ -34,11 +34,19 @@ export function ChatbotView({ chatbotId }: ChatbotViewProps) {
     deleteChatbot,
     deleteCredential,
     deleteLink,
+    setActiveAccentColor,
   } = useAppStore();
 
   const chatbot = getChatbot(chatbotId);
   const org = chatbot ? getOrganization(chatbot.orgId) : undefined;
   const workflows = chatbot ? getWorkflowsByChatbot(chatbot.id) : [];
+
+  // Set accent color when viewing this chatbot
+  useEffect(() => {
+    if (chatbot?.accentColor) {
+      setActiveAccentColor(chatbot.accentColor);
+    }
+  }, [chatbot?.accentColor, setActiveAccentColor]);
 
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -48,7 +56,9 @@ export function ChatbotView({ chatbotId }: ChatbotViewProps) {
   const [editLink, setEditLink] = useState<Link | null>(null);
   const [showAddLink, setShowAddLink] = useState(false);
   const [showTesterData, setShowTesterData] = useState(false);
-  const [deleteCredentialId, setDeleteCredentialId] = useState<string | null>(null);
+  const [deleteCredentialId, setDeleteCredentialId] = useState<string | null>(
+    null,
+  );
   const [deleteLinkId, setDeleteLinkId] = useState<string | null>(null);
 
   if (!chatbot || !org) {
@@ -317,11 +327,7 @@ export function ChatbotView({ chatbotId }: ChatbotViewProps) {
                       className="w-full flex items-start gap-3 px-3 py-3 rounded-lg hover:bg-bg-tertiary text-left transition-colors group"
                     >
                       <div className="w-8 h-8 bg-bg-elevated rounded-lg flex items-center justify-center flex-shrink-0 group-hover:bg-accent-muted transition-colors">
-                        {wf.emoji ? (
-                          <span className="text-base">{wf.emoji}</span>
-                        ) : (
-                          <Workflow className="w-4 h-4 text-text-muted group-hover:text-accent transition-colors" />
-                        )}
+                        <span className="text-base">{wf.emoji || '⚙️'}</span>
                       </div>
                       <div className="flex-1 min-w-0">
                         <div className="font-medium text-text-primary text-sm">
@@ -347,7 +353,10 @@ export function ChatbotView({ chatbotId }: ChatbotViewProps) {
 
       {/* Modals */}
       {showEdit && (
-        <EditChatbotModal chatbot={chatbot} onClose={() => setShowEdit(false)} />
+        <EditChatbotModal
+          chatbot={chatbot}
+          onClose={() => setShowEdit(false)}
+        />
       )}
       {showDelete && (
         <ConfirmModal

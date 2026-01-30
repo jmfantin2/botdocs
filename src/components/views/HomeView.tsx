@@ -1,3 +1,4 @@
+import { useEffect } from 'react';
 import { Building2, Bot, Workflow, ArrowRight } from 'lucide-react';
 import { useAppStore } from '../../store';
 
@@ -11,7 +12,13 @@ export function HomeView() {
     getWorkflowsByChatbot,
     toggleOrgExpanded,
     expandedOrgs,
+    setActiveAccentColor,
   } = useAppStore();
+
+  // Reset to default accent color
+  useEffect(() => {
+    setActiveAccentColor(null);
+  }, [setActiveAccentColor]);
 
   const stats = [
     { label: 'Organizations', value: organizations.length, icon: Building2 },
@@ -88,9 +95,12 @@ export function HomeView() {
                         <Building2 className="w-5 h-5 text-accent" />
                       </div>
                       <div className="text-left">
-                        <div className="font-medium text-text-primary">{org.name}</div>
+                        <div className="font-medium text-text-primary">
+                          {org.name}
+                        </div>
                         <div className="text-sm text-text-muted">
-                          {orgChatbots.length} chatbot{orgChatbots.length !== 1 ? 's' : ''}
+                          {orgChatbots.length} chatbot
+                          {orgChatbots.length !== 1 ? 's' : ''}
                         </div>
                       </div>
                     </div>
@@ -111,7 +121,9 @@ export function HomeView() {
                       ) : (
                         <div className="p-2">
                           {orgChatbots.map((chatbot) => {
-                            const chatbotWorkflows = getWorkflowsByChatbot(chatbot.id);
+                            const chatbotWorkflows = getWorkflowsByChatbot(
+                              chatbot.id,
+                            );
 
                             return (
                               <div
@@ -158,7 +170,9 @@ export function HomeView() {
                                               {wf.emoji && `${wf.emoji} `}
                                               {wf.name}
                                             </span>
-                                            <span className="text-text-muted">—</span>
+                                            <span className="text-text-muted">
+                                              —
+                                            </span>
                                             <span className="text-text-muted truncate">
                                               {wf.description}
                                             </span>

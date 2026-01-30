@@ -1,5 +1,12 @@
-import { useState } from 'react';
-import { Building2, Bot, Workflow, Edit2, Trash2, MoreVertical } from 'lucide-react';
+import { useState, useEffect } from 'react';
+import {
+  Building2,
+  Bot,
+  Workflow,
+  Edit2,
+  Trash2,
+  MoreVertical,
+} from 'lucide-react';
 import { useAppStore } from '../../store';
 import { EditOrgModal } from '../modals/EditOrgModal';
 import { ConfirmModal } from '../modals/ConfirmModal';
@@ -9,10 +16,21 @@ interface OrgViewProps {
 }
 
 export function OrgView({ orgId }: OrgViewProps) {
-  const { getOrganization, getChatbotsByOrg, getWorkflowsByChatbot, navigate, deleteOrganization } =
-    useAppStore();
+  const {
+    getOrganization,
+    getChatbotsByOrg,
+    getWorkflowsByChatbot,
+    navigate,
+    deleteOrganization,
+    setActiveAccentColor,
+  } = useAppStore();
   const org = getOrganization(orgId);
   const chatbots = getChatbotsByOrg(orgId);
+
+  // Reset to default accent color
+  useEffect(() => {
+    setActiveAccentColor(null);
+  }, [setActiveAccentColor]);
 
   const [showEdit, setShowEdit] = useState(false);
   const [showDelete, setShowDelete] = useState(false);
@@ -20,13 +38,15 @@ export function OrgView({ orgId }: OrgViewProps) {
 
   if (!org) {
     return (
-      <div className="p-8 text-center text-text-muted">Organization not found</div>
+      <div className="p-8 text-center text-text-muted">
+        Organization not found
+      </div>
     );
   }
 
   const totalWorkflows = chatbots.reduce(
     (acc, c) => acc + getWorkflowsByChatbot(c.id).length,
-    0
+    0,
   );
 
   const handleDelete = () => {
@@ -43,7 +63,9 @@ export function OrgView({ orgId }: OrgViewProps) {
             <Building2 className="w-7 h-7 text-accent" />
           </div>
           <div>
-            <h1 className="text-2xl font-semibold text-text-primary">{org.name}</h1>
+            <h1 className="text-2xl font-semibold text-text-primary">
+              {org.name}
+            </h1>
             {org.description && (
               <p className="text-text-secondary mt-1">{org.description}</p>
             )}
@@ -151,7 +173,9 @@ export function OrgView({ orgId }: OrgViewProps) {
                       <Bot className="w-5 h-5 text-text-muted group-hover:text-accent transition-colors" />
                     </div>
                     <div className="flex-1">
-                      <div className="font-medium text-text-primary">{chatbot.name}</div>
+                      <div className="font-medium text-text-primary">
+                        {chatbot.name}
+                      </div>
                       {chatbot.description && (
                         <div className="text-sm text-text-muted mt-0.5 line-clamp-2">
                           {chatbot.description}
@@ -171,7 +195,9 @@ export function OrgView({ orgId }: OrgViewProps) {
       </div>
 
       {/* Modals */}
-      {showEdit && <EditOrgModal org={org} onClose={() => setShowEdit(false)} />}
+      {showEdit && (
+        <EditOrgModal org={org} onClose={() => setShowEdit(false)} />
+      )}
       {showDelete && (
         <ConfirmModal
           title="Delete Organization"

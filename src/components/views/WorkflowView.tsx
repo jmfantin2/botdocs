@@ -1,7 +1,6 @@
 import { useState, useRef, useEffect } from 'react';
 import ReactMarkdown from 'react-markdown';
 import {
-  Workflow,
   Edit2,
   Trash2,
   MoreVertical,
@@ -11,7 +10,6 @@ import {
   ChevronDown,
   MessageSquare,
   FileJson,
-  FolderOpen,
   Eye,
   User,
   Cpu,
